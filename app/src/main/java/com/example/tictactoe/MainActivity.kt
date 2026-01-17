@@ -1,18 +1,22 @@
 package com.example.tictactoe
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.tictactoe.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton
+
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var buttons: Array<Button>
-    private lateinit var resetButton: Button
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var buttons: Array<MaterialButton>
+    private lateinit var resetButton: MaterialButton
     private var board = CharArray(9) { ' ' }
-    private var currentPlayer = 'X'
+    private val xString = 'X'
+    private val oString = 'O'
+    private val emptyString = ' '
+    private var currentPlayer = this.xString
     private var winConditions = arrayOf(
         intArrayOf(0, 1, 2), intArrayOf(3, 4, 5), intArrayOf(6, 7, 8),
         intArrayOf(0, 3, 6), intArrayOf(1, 4, 7), intArrayOf(2, 5, 8),
@@ -22,72 +26,68 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        this.binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(this.binding.main)
 
         buttons = arrayOf(
-            findViewById(R.id.cell_0_0),
-            findViewById(R.id.cell_0_1),
-            findViewById(R.id.cell_0_2),
-            findViewById(R.id.cell_1_0),
-            findViewById(R.id.cell_1_1),
-            findViewById(R.id.cell_1_2),
-            findViewById(R.id.cell_2_0),
-            findViewById(R.id.cell_2_1),
-            findViewById(R.id.cell_2_2),
+            findViewById(this.binding.cell00.id),
+            findViewById(this.binding.cell01.id),
+            findViewById(this.binding.cell02.id),
+            findViewById(this.binding.cell10.id),
+            findViewById(this.binding.cell11.id),
+            findViewById(this.binding.cell12.id),
+            findViewById(this.binding.cell20.id),
+            findViewById(this.binding.cell21.id),
+            findViewById(this.binding.cell22.id),
         )
 
-        buttons.forEachIndexed { index, button ->
-            button.text = board[index].toString().trim()
-            button.setOnClickListener { makeMove(index) }
+        this.buttons.forEachIndexed { index, button ->
+            button.text = this.board[index].toString().trim()
+            button.setOnClickListener { this.makeMove(index) }
         }
 
-        resetButton = findViewById(R.id.resetButton)
-        resetButton.setOnClickListener { resetGame() }
-        resetButton.isEnabled = false
+        this.resetButton = findViewById(this.binding.resetButton.id)
+        this.resetButton.setOnClickListener { ::resetGame }
+        this.resetButton.isEnabled = false
     }
 
     private fun makeMove(index: Int) {
-        if (board[index] != ' ') return
+        if (this.board[index] != this.emptyString) return
 
-        if(resetButton.isEnabled) return
+        if(this.resetButton.isEnabled) return
 
-        board[index] = currentPlayer
-        buttons[index].text = currentPlayer.toString()
+        this.board[index] = this.currentPlayer
+        this.buttons[index].text = this.currentPlayer.toString()
 
         when {
-            checkWinner() -> endGame("$currentPlayer wins!")
-            isDraw() -> endGame("It's a draw!")
-            else -> currentPlayer = if (currentPlayer == 'X') 'O' else 'X'
+            this.checkWinner() -> this.endGame("${this.currentPlayer} wins!")
+            this.isDraw() -> this.endGame("It's a draw!")
+            else -> this.currentPlayer = if (this.currentPlayer == this.xString) this.oString else this.xString
         }
     }
 
     private fun checkWinner(): Boolean {
-        return winConditions.any {
-            board[it[0]] == currentPlayer &&
-                    board[it[1]] == currentPlayer &&
-                    board[it[2]] == currentPlayer
+        return this.winConditions.any {
+            this.board[it[0]] == this.currentPlayer &&
+                    this.board[it[1]] == this.currentPlayer &&
+                    this.board[it[2]] == this.currentPlayer
         }
     }
 
     private fun isDraw(): Boolean {
-        return board.all { it != ' ' }
+        return this.board.all { it != this.emptyString }
     }
 
     private fun endGame(message: String) {
-        showResult(message)
-        resetButton.isEnabled = true
+        this.showResult(message)
+        this.resetButton.isEnabled = true
     }
 
     private fun resetGame() {
-        board = CharArray(9) { ' ' }
-        currentPlayer = 'X'
-        buttons.forEach { it.text = "" }
-        resetButton.isEnabled = false
+        this.board = CharArray(9) { this.emptyString }
+        this.currentPlayer = this.xString
+        this.buttons.forEach { it.text = "" }
+        this.resetButton.isEnabled = false
     }
 
     private fun showResult(message: String) {
