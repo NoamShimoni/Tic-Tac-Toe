@@ -1,9 +1,12 @@
 package com.example.tictactoe
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.tictactoe.databinding.ActivityMainBinding
 import com.google.android.material.button.MaterialButton
 
@@ -11,12 +14,8 @@ import com.google.android.material.button.MaterialButton
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var buttons: Array<MaterialButton>
-    private lateinit var resetButton: MaterialButton
     private var board = CharArray(9) { ' ' }
-    private val xString = 'X'
-    private val oString = 'O'
-    private val emptyString = ' '
-    private var currentPlayer = this.xString
+    private var currentPlayer = X
     private var winConditions = arrayOf(
         intArrayOf(0, 1, 2), intArrayOf(3, 4, 5), intArrayOf(6, 7, 8),
         intArrayOf(0, 3, 6), intArrayOf(1, 4, 7), intArrayOf(2, 5, 8),
@@ -27,18 +26,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         this.binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(this.binding.main)
-
-        buttons = arrayOf(
-            findViewById(this.binding.cell00.id),
-            findViewById(this.binding.cell01.id),
-            findViewById(this.binding.cell02.id),
-            findViewById(this.binding.cell10.id),
-            findViewById(this.binding.cell11.id),
-            findViewById(this.binding.cell12.id),
-            findViewById(this.binding.cell20.id),
-            findViewById(this.binding.cell21.id),
-            findViewById(this.binding.cell22.id),
+        setContentView(this.binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+        this.buttons = arrayOf(
+            this.binding.cell00,
+            this.binding.cell01,
+            this.binding.cell02,
+            this.binding.cell10,
+            this.binding.cell11,
+            this.binding.cell12,
+            this.binding.cell20,
+            this.binding.cell21,
+            this.binding.cell22,
         )
 
         this.buttons.forEachIndexed { index, button ->
@@ -46,15 +49,14 @@ class MainActivity : AppCompatActivity() {
             button.setOnClickListener { this.makeMove(index) }
         }
 
-        this.resetButton = findViewById(this.binding.resetButton.id)
-        this.resetButton.setOnClickListener { ::resetGame }
-        this.resetButton.isEnabled = false
+        this.binding.resetButton.setOnClickListener(::resetGame)
+        this.binding.resetButton.isEnabled = false
     }
 
     private fun makeMove(index: Int) {
-        if (this.board[index] != this.emptyString) return
+        if (this.board[index] != empty) return
 
-        if(this.resetButton.isEnabled) return
+        if(this.binding.resetButton.isEnabled) return
 
         this.board[index] = this.currentPlayer
         this.buttons[index].text = this.currentPlayer.toString()
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         when {
             this.checkWinner() -> this.endGame("${this.currentPlayer} wins!")
             this.isDraw() -> this.endGame("It's a draw!")
-            else -> this.currentPlayer = if (this.currentPlayer == this.xString) this.oString else this.xString
+            else -> this.currentPlayer = if (this.currentPlayer == X) O else X
         }
     }
 
@@ -75,19 +77,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isDraw(): Boolean {
-        return this.board.all { it != this.emptyString }
+        return this.board.all { it != empty }
     }
 
     private fun endGame(message: String) {
         this.showResult(message)
-        this.resetButton.isEnabled = true
+        this.binding.resetButton.isEnabled = true
     }
 
-    private fun resetGame() {
-        this.board = CharArray(9) { this.emptyString }
-        this.currentPlayer = this.xString
+    private fun resetGame(view: View) {
+        this.board = CharArray(9) { empty }
+        this.currentPlayer = X
         this.buttons.forEach { it.text = "" }
-        this.resetButton.isEnabled = false
+        this.binding.resetButton.isEnabled = false
     }
 
     private fun showResult(message: String) {
