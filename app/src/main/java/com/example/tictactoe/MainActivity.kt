@@ -64,10 +64,14 @@ class MainActivity : AppCompatActivity() {
         when {
             this.checkWinner() -> this.endGame("${this.currentPlayer} wins!")
             this.isDraw() -> this.endGame("It's a draw!")
-            else -> this.currentPlayer = if (this.currentPlayer == X) O else X
+            else -> this.updateCurrentPlayer()
         }
     }
 
+    private fun updateCurrentPlayer() {
+        this.currentPlayer = if (this.currentPlayer == X) O else X
+        this.binding.statusTextView.text = "Player ${this.currentPlayer}'s Turn"
+    }
     private fun checkWinner(): Boolean {
         return this.winConditions.any {
             this.board[it[0]] == this.currentPlayer &&
