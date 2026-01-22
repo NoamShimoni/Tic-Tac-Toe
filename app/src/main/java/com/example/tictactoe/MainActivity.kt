@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         this.buttons.forEachIndexed { index, button ->
-            button.text = this.board[index].toString().trim()
+            button.text = this.board[index].toString()
             button.setOnClickListener { this.makeMove(index) }
         }
 
@@ -54,9 +54,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun makeMove(index: Int) {
-        if (this.board[index] != empty) return
-
-        if(this.binding.resetButton.isEnabled) return
+        if (this.board[index] != empty || this.binding.resetButton.isEnabled) return
 
         this.board[index] = this.currentPlayer
         this.buttons[index].text = this.currentPlayer.toString()
@@ -92,6 +90,7 @@ class MainActivity : AppCompatActivity() {
     private fun resetGame(view: View) {
         this.board = CharArray(9) { empty }
         this.currentPlayer = X
+        this.binding.statusTextView.text = "Player ${this.currentPlayer}'s Turn"
         this.buttons.forEach { it.text = "" }
         this.binding.resetButton.isEnabled = false
     }
