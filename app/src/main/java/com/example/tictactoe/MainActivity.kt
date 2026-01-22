@@ -84,6 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun endGame(message: String) {
         this.showResult(message)
+        this.binding.statusTextView.text = message
         this.binding.resetButton.isEnabled = true
     }
 
